@@ -69,6 +69,10 @@
                     <span class="w-px h-3 bg-indigo-700 mx-2"></span>
                     <span id="current-time"></span>
                 </div>
+                <button onclick="openHelpModal()" class="text-indigo-200 hover:text-yellow-400 transition-colors flex items-center gap-1" title="도움말">
+                    <i data-lucide="circle-help" class="w-5 h-5"></i>
+                    <span class="text-xs font-bold hidden md:inline">도움말</span>
+                </button>
                 <button onclick="openSettings()" class="text-indigo-200 hover:text-white transition-colors" title="설정">
                     <i data-lucide="settings" class="w-5 h-5"></i>
                 </button>
@@ -261,8 +265,9 @@
                                             </p>
                                             <div class="flex flex-col md:flex-row gap-2">
                                                 <div class="flex gap-2 w-full">
-                                                    <input type="text" id="new-sched-date" placeholder="날짜 (11/25)" class="w-1/3 p-3 bg-gray-50 rounded-lg border border-gray-300 text-sm focus:outline-none">
+                                                    <input type="text" id="new-sched-date" placeholder="날짜 (11/25)" class="w-1/4 p-3 bg-gray-50 rounded-lg border border-gray-300 text-sm focus:outline-none">
                                                     <input type="text" id="new-sched-event" placeholder="내용 (예: 기말고사)" class="flex-1 p-3 bg-gray-50 rounded-lg border border-gray-300 text-sm focus:outline-none">
+                                                    <input type="text" id="new-sched-author" placeholder="작성자(직급)" class="w-1/4 p-3 bg-indigo-50 rounded-lg border border-indigo-100 text-sm focus:outline-none text-indigo-700 font-medium">
                                                 </div>
                                                 <button onclick="addSchedule()" class="w-full md:w-auto bg-indigo-600 text-white px-5 py-3 rounded-lg text-sm font-bold hover:bg-indigo-700">추가</button>
                                             </div>
@@ -297,15 +302,25 @@
                                                 <tbody id="textbook-table" class="bg-white"></tbody>
                                             </table>
                                         </div>
-                                        <div id="add-textbook-row" class="hidden mb-6">
-                                            <button onclick="addTextbookRow()" class="w-full py-3 border-2 border-dashed border-gray-300 text-gray-500 rounded-lg hover:bg-gray-50 text-sm font-medium mb-2">
-                                                <i data-lucide="plus" class="w-4 h-4 inline"></i> 과목 추가하기
-                                            </button>
-                                            <button onclick="saveTextbooks()" class="w-full bg-green-600 text-white px-6 py-3 rounded-lg text-sm font-bold">저장 완료</button>
+                                        <div id="add-textbook-row" class="hidden mb-6 bg-gray-100 p-4 rounded-lg border border-gray-200">
+                                            <div class="flex justify-between items-center mb-3">
+                                                <p class="text-sm font-bold text-gray-700">편집 모드</p>
+                                                <button onclick="addTextbookRow()" class="text-xs py-1 px-3 bg-white border border-gray-300 rounded hover:bg-gray-50 font-medium">
+                                                    <i data-lucide="plus" class="w-3 h-3 inline"></i> 행 추가
+                                                </button>
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <input type="text" id="textbook-author-input" placeholder="수정자 이름/직급 (필수)" class="flex-1 p-3 border border-indigo-300 bg-white rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+                                                <button onclick="saveTextbooks()" class="w-32 bg-green-600 text-white px-4 py-3 rounded-lg text-sm font-bold hover:bg-green-700">저장 완료</button>
+                                            </div>
+                                            <p class="text-[10px] text-gray-500 mt-2">* 저장 시 입력한 이름이 기록됩니다.</p>
                                         </div>
-                                        <div class="bg-gray-50 p-3 rounded-lg text-xs text-gray-500 flex gap-4">
-                                            <span class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-green-500"></div> 확인됨: 학교 공시/홈페이지 자료</span>
-                                            <span class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-red-500"></div> 추정: 서울 주요학교 통계치</span>
+                                        <div class="bg-gray-50 p-3 rounded-lg text-xs text-gray-500 flex gap-4 justify-between items-center">
+                                            <div class="flex gap-4">
+                                                <span class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-green-500"></div> 확인됨: 학교 공시/홈페이지 자료</span>
+                                                <span class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-red-500"></div> 추정: 서울 주요학교 통계치</span>
+                                            </div>
+                                            <div id="textbook-last-modified" class="text-indigo-600 font-bold"></div>
                                         </div>
                                     </div>
 
@@ -314,7 +329,7 @@
                                         <div class="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
                                             <textarea id="comm-content" class="w-full p-3 border border-gray-300 rounded-lg text-base mb-3" rows="2" placeholder="자유롭게 이야기를 나누세요."></textarea>
                                             <div class="flex justify-between items-center gap-2">
-                                                <input id="comm-author" type="text" placeholder="닉네임" class="p-2 border border-gray-300 rounded-lg text-sm w-32">
+                                                <input id="comm-author" type="text" placeholder="작성자(직급)" class="p-2 border border-gray-300 rounded-lg text-sm w-32">
                                                 <button onclick="addComment()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold">등록</button>
                                             </div>
                                         </div>
@@ -384,6 +399,52 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center fade-in px-4">
+        <div class="bg-white p-6 rounded-xl shadow-xl max-w-lg w-full relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-indigo-600"></div>
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-xl text-indigo-900 flex items-center gap-2">
+                    <i data-lucide="book-open" class="w-6 h-6 text-indigo-600"></i> 사용 가이드
+                </h3>
+                <button onclick="closeHelpModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="space-y-6 text-sm text-gray-700 max-h-[60vh] overflow-y-auto pr-2">
+                
+                <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+                    <h4 class="font-bold text-indigo-800 mb-2 flex items-center gap-1"><i data-lucide="school" class="w-4 h-4"></i> 1. 학교 추가 기능</h4>
+                    <p class="leading-relaxed">
+                        찾으시는 학교가 목록에 없나요? 좌측 사이드바 하단의 <span class="font-bold text-indigo-600">직접 학교 추가하기</span> 버튼을 눌러보세요. 학교명만 입력하면 주소 등을 자동으로 찾아 등록해 드립니다.
+                    </p>
+                </div>
+
+                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                    <h4 class="font-bold text-yellow-800 mb-2 flex items-center gap-1"><i data-lucide="users" class="w-4 h-4"></i> 2. 집단 지성의 필요성</h4>
+                    <p class="leading-relaxed mb-2">
+                        학사일정과 교과서/시험 정보는 학교 보안 정책상 자동 연동이 매우 제한적입니다. 따라서 기계적인 정보보다는 <span class="font-bold">매니저님들의 현장 경험과 집단 지성</span>이 훨씬 정확합니다.
+                    </p>
+                    <p class="leading-relaxed text-xs text-yellow-700">
+                        * 부정확한 자동 정보보다는, 우리가 직접 검증하고 입력한 데이터가 학생 관리에 더 큰 힘이 됩니다.
+                    </p>
+                </div>
+
+                <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                    <h4 class="font-bold text-green-800 mb-2 flex items-center gap-1"><i data-lucide="check-circle-2" class="w-4 h-4"></i> 3. 작업 과정 (실명제)</h4>
+                    <p class="leading-relaxed mb-2">
+                        정확한 정보 공유를 위해 데이터를 입력/수정하실 때는 반드시 <span class="font-bold text-green-700">본인의 성함이나 직급</span>을 함께 남겨주세요.
+                    </p>
+                    <ul class="list-disc list-inside text-xs text-gray-600 space-y-1 ml-1">
+                        <li>학사일정: 일정 추가 시 작성자 입력 필수</li>
+                        <li>교과서: 수정 후 저장 시 수정자 이름 입력 필수</li>
+                    </ul>
+                </div>
+
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeHelpModal()" class="bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-indigo-700 transition-colors">확인했습니다</button>
+            </div>
+        </div>
     </div>
 
     <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center fade-in px-4">
@@ -550,12 +611,45 @@
                      seedData = textbookDataSeed[schoolType][grade] || [];
                 }
                 
-                localStorage.setItem(key, JSON.stringify(seedData));
-                return seedData;
+                // Default structure: array of objects. We add meta info for last modified if not present
+                const dataWrapper = {
+                    rows: seedData,
+                    lastModifiedBy: ''
+                };
+                
+                // Check if it's the old array format or new object format
+                if (Array.isArray(seedData)) {
+                    // It's just data, return wrapper logic will be handled in load
+                    return dataWrapper; 
+                }
+                
+                return seedData; // Should not reach here with current logic but safe keep
             },
-            saveTextbooks: function(schoolType, grade, data, schoolId) {
+            // Modified to handle the wrapper object with metadata
+            getTextbooksWithMeta: function(schoolType, grade, schoolId) {
                 const key = `textbook_${schoolId || schoolType}_${grade}`;
-                localStorage.setItem(key, JSON.stringify(data));
+                const stored = localStorage.getItem(key);
+                
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed)) {
+                        return { rows: parsed, lastModifiedBy: '' }; // Legacy support
+                    }
+                    return parsed;
+                }
+                
+                // Initialize new
+                let seedData = [];
+                if (schoolId && textbookDataSeed[schoolId] && textbookDataSeed[schoolId][grade]) {
+                     seedData = textbookDataSeed[schoolId][grade];
+                } else {
+                     seedData = textbookDataSeed[schoolType][grade] || [];
+                }
+                return { rows: seedData, lastModifiedBy: '' };
+            },
+            saveTextbooksWithMeta: function(schoolType, grade, dataObj, schoolId) {
+                const key = `textbook_${schoolId || schoolType}_${grade}`;
+                localStorage.setItem(key, JSON.stringify(dataObj));
             },
             getComments: function(schoolId, grade) {
                 const stored = localStorage.getItem(`comm_${schoolId}_${grade}`);
@@ -629,6 +723,7 @@
         const modal = document.getElementById('confirm-modal');
         const addSchoolModal = document.getElementById('add-school-modal');
         const settingsModal = document.getElementById('settings-modal');
+        const helpModal = document.getElementById('help-modal');
 
         // Sidebar Logic
         function closeSidebar() { sidebar.classList.add('-translate-x-full'); backdrop.classList.add('hidden'); }
@@ -648,7 +743,6 @@
         
         function searchSchoolAlimi() {
             const name = document.getElementById('school-name').textContent;
-            // Using Google Search as a proxy because SchoolAlimi doesn't support simple direct links
             const query = name + ' 학교알리미';
             openExternalLink('https://www.google.com/search?q=' + encodeURIComponent(query));
         }
@@ -762,6 +856,10 @@
             renderNewsList();
             lucide.createIcons();
         }
+
+        // --- Help Modal ---
+        function openHelpModal() { helpModal.classList.remove('hidden'); }
+        function closeHelpModal() { helpModal.classList.add('hidden'); }
 
         // --- Settings Modal ---
         function openSettings() {
@@ -887,10 +985,17 @@
         function renderScheduleList() {
             const fullSchedule = DataService.getSchedule(activeSchoolId, currentGrade);
             const activeSchedule = currentSemester === 1 ? fullSchedule.sem1 : fullSchedule.sem2;
+            
             document.getElementById('schedule-list').innerHTML = activeSchedule.map((s, index) => `
                 <div class="relative pl-6 fade-in group flex justify-between items-start">
                     <div class="absolute left-[-5px] top-1 w-2.5 h-2.5 bg-indigo-600 rounded-full border-2 border-white"></div>
-                    <div><p class="text-xs font-bold text-indigo-600">${s.date}</p><p class="text-sm text-gray-800">${s.event}</p></div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-indigo-600">${s.date}</span>
+                            <span class="text-gray-400 text-[10px]">${s.author ? 'by ' + s.author : ''}</span>
+                        </div>
+                        <p class="text-sm text-gray-800">${s.event}</p>
+                    </div>
                     <button onclick="openConfirmModal('schedule', ${index})" class="text-gray-400 hover:text-red-500 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
                 </div>
             `).join('') || '<p class="text-gray-400 text-sm italic ml-4">등록된 일정이 없습니다.</p>';
@@ -899,9 +1004,13 @@
         function addSchedule() {
             const dateInput = document.getElementById('new-sched-date');
             const eventInput = document.getElementById('new-sched-event');
-            if (!dateInput.value || !eventInput.value) return showToast("내용을 입력하세요.");
+            const authorInput = document.getElementById('new-sched-author');
+            
+            if (!dateInput.value || !eventInput.value || !authorInput.value) return showToast("날짜, 내용, 작성자를 모두 입력하세요.");
+            
             const fullSchedule = DataService.getSchedule(activeSchoolId, currentGrade);
-            const newItem = { date: dateInput.value, event: eventInput.value };
+            const newItem = { date: dateInput.value, event: eventInput.value, author: authorInput.value };
+            
             if (currentSemester === 1) fullSchedule.sem1.push(newItem); else fullSchedule.sem2.push(newItem);
             
             const dateValue = (d) => { const parts = d.date.split('~')[0].trim().replace(/<[^>]*>/g, '').split('/'); return parseInt(parts[0]) * 100 + parseInt(parts[1]); };
@@ -909,14 +1018,24 @@
             
             DataService.saveSchedule(activeSchoolId, currentGrade, fullSchedule);
             renderScheduleList();
-            dateInput.value = ''; eventInput.value = '';
+            dateInput.value = ''; eventInput.value = ''; // Don't clear author for convenience
             showToast("추가되었습니다.");
         }
 
-        // Textbook Logic (Enhanced)
+        // Textbook Logic (Enhanced with Author)
         function renderTextbookTable() {
-            const books = DataService.getTextbooks(activeSchoolType === 'high' ? 'high' : 'middle', currentGrade, activeSchoolId);
+            const type = activeSchoolType === 'high' ? 'high' : 'middle';
+            const dataObj = DataService.getTextbooksWithMeta(type, currentGrade, activeSchoolId);
+            const books = dataObj.rows;
+            
             const tbody = document.getElementById('textbook-table');
+            const lastModEl = document.getElementById('textbook-last-modified');
+            
+            if (dataObj.lastModifiedBy) {
+                lastModEl.textContent = `최종 수정: ${dataObj.lastModifiedBy}`;
+            } else {
+                lastModEl.textContent = '';
+            }
             
             if (isTextbookEditMode) {
                 tbody.innerHTML = books.map((b, idx) => `
@@ -948,22 +1067,22 @@
         }
         function updateTextbookLocal(index, field, value) {
             const type = activeSchoolType === 'high' ? 'high' : 'middle';
-            const data = DataService.getTextbooks(type, currentGrade, activeSchoolId);
-            data[index][field] = value;
-            DataService.saveTextbooks(type, currentGrade, data, activeSchoolId);
+            const dataObj = DataService.getTextbooksWithMeta(type, currentGrade, activeSchoolId);
+            dataObj.rows[index][field] = value;
+            DataService.saveTextbooksWithMeta(type, currentGrade, dataObj, activeSchoolId);
         }
         function addTextbookRow() {
             const type = activeSchoolType === 'high' ? 'high' : 'middle';
-            const data = DataService.getTextbooks(type, currentGrade, activeSchoolId);
-            data.push({ subject: '', pub: '', author: '', status: 'user-added' });
-            DataService.saveTextbooks(type, currentGrade, data, activeSchoolId);
+            const dataObj = DataService.getTextbooksWithMeta(type, currentGrade, activeSchoolId);
+            dataObj.rows.push({ subject: '', pub: '', author: '', status: 'user-added' });
+            DataService.saveTextbooksWithMeta(type, currentGrade, dataObj, activeSchoolId);
             renderTextbookTable();
         }
         function deleteTextbookRow(index) {
             const type = activeSchoolType === 'high' ? 'high' : 'middle';
-            const data = DataService.getTextbooks(type, currentGrade, activeSchoolId);
-            data.splice(index, 1);
-            DataService.saveTextbooks(type, currentGrade, data, activeSchoolId);
+            const dataObj = DataService.getTextbooksWithMeta(type, currentGrade, activeSchoolId);
+            dataObj.rows.splice(index, 1);
+            DataService.saveTextbooksWithMeta(type, currentGrade, dataObj, activeSchoolId);
             renderTextbookTable();
         }
         function toggleTextbookEditMode() { isTextbookEditMode = !isTextbookEditMode; updateTextbookEditUI(); renderTextbookTable(); }
@@ -972,8 +1091,8 @@
             const addRowDiv = document.getElementById('add-textbook-row');
             const deleteCols = document.querySelectorAll('.edit-col');
             if (isTextbookEditMode) {
-                btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> 완료';
-                btn.className = "text-xs px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium flex items-center gap-1 transition-colors";
+                btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> 편집 종료'; // Changed text
+                btn.className = "text-xs px-3 py-2 bg-gray-600 text-white rounded-lg font-medium flex items-center gap-1 transition-colors"; // Changed style
                 addRowDiv.classList.remove('hidden');
                 deleteCols.forEach(c => c.classList.remove('hidden'));
             } else {
@@ -984,7 +1103,18 @@
             }
             lucide.createIcons();
         }
-        function saveTextbooks() { toggleTextbookEditMode(); showToast("저장되었습니다."); }
+        function saveTextbooks() {
+            const authorName = document.getElementById('textbook-author-input').value;
+            if (!authorName) return showToast("수정자 이름을 입력해야 저장됩니다.");
+            
+            const type = activeSchoolType === 'high' ? 'high' : 'middle';
+            const dataObj = DataService.getTextbooksWithMeta(type, currentGrade, activeSchoolId);
+            dataObj.lastModifiedBy = authorName;
+            DataService.saveTextbooksWithMeta(type, currentGrade, dataObj, activeSchoolId);
+            
+            toggleTextbookEditMode();
+            showToast("저장되었습니다.");
+        }
 
         // Comm & Dev Logic
         function renderCommList() {

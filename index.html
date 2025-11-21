@@ -228,8 +228,8 @@
                                                 <i data-lucide="info" class="w-4 h-4"></i> 학사일정 조회 요령
                                             </h4>
                                             <div class="grid grid-cols-2 gap-2 mb-3">
-                                                <button onclick="openExternalLink('https://www.schoolinfo.go.kr/ei/ss/Pneiss_a01_s0.do')" class="flex items-center justify-center gap-1 p-2 bg-white border border-blue-100 rounded text-xs font-medium text-blue-600 hover:bg-blue-50">
-                                                    <i data-lucide="search" class="w-3 h-3"></i> 학교알리미
+                                                <button onclick="searchSchoolAlimi()" class="flex items-center justify-center gap-1 p-2 bg-white border border-blue-100 rounded text-xs font-medium text-blue-600 hover:bg-blue-50">
+                                                    <i data-lucide="search" class="w-3 h-3"></i> 학교알리미 (검색)
                                                 </button>
                                                 <button id="btn-homepage-schedule" class="flex items-center justify-center gap-1 p-2 bg-white border border-blue-100 rounded text-xs font-medium text-blue-600 hover:bg-blue-50">
                                                     <i data-lucide="home" class="w-3 h-3"></i> 학교 홈페이지
@@ -461,7 +461,7 @@
     </div>
 
     <script>
-        // Default Schools Data (교훈/슬로건 업데이트 완료)
+        // Default Schools Data
         const defaultSchools = [
             { id: 'gajaewul', name: '가재울중학교', type: 'middle', students: '850명', transport: '경의중앙 가좌역', phone: '02-304-0070', website: 'http://gajaeul.sen.ms.kr', address: '서울특별시 서대문구 수색로 100-75', desc: '지성(至誠): 지극한 정성으로 최선을 다하자' },
             { id: 'gyeongseong_h', name: '경성고등학교', type: 'high', students: '720명', transport: '홍대입구역', phone: '02-335-2621', website: 'http://gyeongseong.sen.hs.kr', address: '서울특별시 마포구 성미산로 111', desc: '진실(眞實)·근면(勤勉)·협동(協同)' },
@@ -482,7 +482,7 @@
             { id: 'hanseong', name: '한국한성화교중', type: 'middle', students: '200명', transport: '연희동', phone: '02-335-7027', website: 'http://hanxiao.or.kr', address: '서울특별시 서대문구 연희로 176', desc: '예의염치(禮義廉恥)' },
         ];
 
-        // Auto-fill Database (Expanded)
+        // Auto-fill Database
         const autoFillDB = {
             '배문고': { type: 'high', address: '서울특별시 용산구 효창원로 258', website: 'http://www.baemoon.hs.kr', phone: '02-3480-7100' },
             '한성고': { type: 'high', address: '서울특별시 서대문구 북아현로1길 24', website: 'http://hanseong.sen.hs.kr', phone: '02-363-4943' },
@@ -499,7 +499,7 @@
             '홍익디자인고': { type: 'high', address: '서울특별시 마포구 성미산로 111', website: 'http://hongik.sen.sc.kr', phone: '02-3140-1330' }
         };
 
-        // Verified 2025 Textbook Data (Specific Schools)
+        // Verified 2025 Textbook Data
         const textbookDataSeed = {
             'soongmoon': {
                  '1': [ 
@@ -512,15 +512,7 @@
                     { subject: '미술', pub: '미래엔(노현옥)', author: '노현옥', status: 'confirmed' }
                 ]
             },
-            'gajaewul': { 
-                 '1': [ 
-                    { subject: '국어', pub: '비상(박현숙)', author: '박현숙', status: 'confirmed' }, 
-                    { subject: '수학', pub: '비상(이진호)', author: '이진호', status: 'confirmed' }, 
-                    { subject: '사회', pub: '비상(강창숙)', author: '강창숙', status: 'confirmed' }, 
-                    { subject: '도덕', pub: '비상(김국현)', author: '김국현', status: 'confirmed' }
-                ]
-            },
-            // General Fallback
+            // Fallback
             'middle': {
                 '1': [ { subject: '국어', pub: '비상(박현숙)', author: '박현숙', status: 'estimated' }, { subject: '수학', pub: '비상(이진호)', author: '이진호', status: 'estimated' }, { subject: '영어', pub: '동아(윤정미)', author: '윤정미', status: 'estimated' }, { subject: '사회', pub: '비상(강창숙)', author: '강창숙', status: 'estimated' }, { subject: '과학', pub: '비상(임태훈)', author: '임태훈', status: 'estimated' } ],
                 '2': [ { subject: '국어', pub: '천재(박영목)', author: '박영목', status: 'estimated' }, { subject: '수학', pub: '비상(김원경)', author: '김원경', status: 'estimated' }, { subject: '영어', pub: '동아(윤정미)', author: '윤정미', status: 'estimated' }, { subject: '역사', pub: '미래엔(김태웅)', author: '김태웅', status: 'estimated' }, { subject: '과학', pub: '미래엔(김성진)', author: '김성진', status: 'estimated' } ],
@@ -600,6 +592,12 @@
                 list.push(school);
                 localStorage.setItem('custom_schools', JSON.stringify(list));
                 return list;
+            },
+            removeCustomSchool: function(id) {
+                const list = this.getCustomSchools();
+                const newList = list.filter(s => s.id !== id);
+                localStorage.setItem('custom_schools', JSON.stringify(newList));
+                return newList;
             }
         };
 
@@ -648,6 +646,13 @@
              openExternalLink('https://www.google.com/search?q=' + encodeURIComponent(query));
         }
         
+        function searchSchoolAlimi() {
+            const name = document.getElementById('school-name').textContent;
+            // Using Google Search as a proxy because SchoolAlimi doesn't support simple direct links
+            const query = name + ' 학교알리미';
+            openExternalLink('https://www.google.com/search?q=' + encodeURIComponent(query));
+        }
+        
         // Render School List
         function renderSchoolList() {
             schoolListEl.innerHTML = '';
@@ -672,20 +677,31 @@
             } else {
                 filtered.forEach(school => {
                     const isActive = school.id === activeSchoolId;
-                    const item = document.createElement('button');
-                    item.className = `w-full text-left p-3 rounded-lg transition mb-1 flex items-center justify-between group ${isActive ? 'school-item-active' : 'school-item-inactive'}`;
-                    item.onclick = () => loadSchool(school.id);
+                    const isCustom = school.id.startsWith('custom_');
+                    const item = document.createElement('div');
+                    item.className = `w-full text-left p-3 rounded-lg transition mb-1 flex items-center justify-between group cursor-pointer ${isActive ? 'school-item-active' : 'school-item-inactive'}`;
+                    
+                    const deleteBtn = isCustom ? `<button onclick="deleteCustomSchool('${school.id}', event)" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors ml-2" title="삭제"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : '';
+
                     item.innerHTML = `
-                        <div class="overflow-hidden">
+                        <div class="overflow-hidden flex-1" onclick="loadSchool('${school.id}')">
                             <div class="font-medium text-sm ${isActive ? 'text-indigo-700' : 'text-gray-700'} truncate">${school.name}</div>
                             <div class="text-xs text-gray-400 truncate max-w-[200px]">${school.address || '주소 미입력'}</div>
                         </div>
-                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 ${isActive ? 'text-indigo-500' : 'group-hover:text-gray-400'} flex-shrink-0"></i>
+                        <div class="flex items-center">
+                            ${deleteBtn}
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 ${isActive ? 'text-indigo-500' : 'group-hover:text-gray-400'} flex-shrink-0 ml-1"></i>
+                        </div>
                     `;
                     schoolListEl.appendChild(item);
                 });
             }
             lucide.createIcons();
+        }
+
+        function deleteCustomSchool(id, event) {
+            event.stopPropagation();
+            openConfirmModal('school', id);
         }
 
         function loadSchool(id) {
@@ -1054,6 +1070,14 @@
             } else if (deleteTarget && deleteTarget.type === 'textbook') {
                 deleteTextbookRow(deleteTarget.index); // Re-route logic
                 showToast("삭제되었습니다.");
+            } else if (deleteTarget && deleteTarget.type === 'school') {
+                DataService.removeCustomSchool(deleteTarget.index); // index here is actually ID
+                renderSchoolList();
+                // If deleted active school, reset to default
+                if (activeSchoolId === deleteTarget.index) {
+                    loadSchool(defaultSchools[0].id);
+                }
+                showToast("학교가 삭제되었습니다.");
             }
             closeConfirmModal();
         });
